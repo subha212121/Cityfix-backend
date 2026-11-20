@@ -1,0 +1,59 @@
+{
+  "name": "cityfix-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CityFix \u2013 Smart City Incident Reporting & Analytics Platform: REST API and worker",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "dev:worker": "tsx watch src/worker.ts",
+    "build": "tsc -p tsconfig.scripts.json",
+    "start": "node dist/src/server.js",
+    "start:worker": "node dist/src/worker.js",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:synthetic": "tsx scripts/generate-synthetic-data.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:sql": "psql \"$DATABASE_ADMIN_URL\" -v ON_ERROR_STOP=1 -f db/tests.sql"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1173.0",
+    "@aws-sdk/s3-request-presigner": "^3.1173.0",
+    "argon2": "^0.45.2",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.6.0",
+    "openai": "^7.61.0",
+    "pdfkit": "^0.20.2",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.6.6",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pdfkit": "^0.17.7",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "pino-pretty": "^13.2.0",
+    "supertest": "^7.3.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}

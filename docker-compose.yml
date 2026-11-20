@@ -1,0 +1,58 @@
+# Local stack: PostGIS, Mailpit (SMTP + web inbox), API, worker.
+# Photos and exports are stored in the shared "files" volume (STORAGE_DRIVER=local).
+#   docker compose up -d db mailpit
+#   npm run db:migrate && npm run dev        (or: docker compose up -d to run everything)
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cityfix
+    ports: ["5432:5432"]
+    volumes: ["dbdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["1025:1025", "8025:8025"]
+
+  migrate:
+    build: .
+    command: ["node", "dist/scripts/migrate.js"]
+    environment:
+      DATABASE_ADMIN_URL: postgres://postgres:postgres@db:5432/cityfix
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://cityfix_app:change-me@db:5432/cityfix
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /files
+      SMTP_HOST: mailpit
+    ports: ["3000:3000"]
+    volumes: ["files:/files"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    command: ["node", "dist/src/worker.js"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://cityfix_app:change-me@db:5432/cityfix
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /files
+      SMTP_HOST: mailpit
+    volumes: ["files:/files"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  dbdata:
+  files:

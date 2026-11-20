@@ -1,0 +1,24 @@
+sequenceDiagram
+    title Logical sequence - Sign in (POST /auth/login)
+    participant Client
+    participant RateLimiter
+    participant AuthRouter
+    participant ZodSchema
+    participant Security
+    participant Repository
+    participant PostgreSQL
+    Client->>RateLimiter: POST /api/v1/auth/login
+    RateLimiter->>AuthRouter: within 20 per 15 min
+    AuthRouter->>ZodSchema: parse email, password
+    ZodSchema-->>AuthRouter: valid credentials object
+    AuthRouter->>Repository: withTx(system)
+    Repository->>PostgreSQL: SELECT user FOR UPDATE
+    PostgreSQL-->>Repository: id, role, status, hash, locked_until
+    Repository->>Security: verifyPassword argon2id or bcrypt
+    Security-->>Repository: match or no match
+    Repository->>PostgreSQL: on failure: failed_login_count + 1, lock at 5
+    Repository->>PostgreSQL: on success: reset count, rehash, INSERT audit signed_in
+    Repository->>PostgreSQL: INSERT user_sessions with refresh token hash
+    Repository->>Security: signAccessToken sub and role, 15 min
+    Security-->>AuthRouter: access and refresh tokens
+    AuthRouter-->>Client: 200 tokens and user, or 401, 403, 423

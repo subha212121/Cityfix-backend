@@ -1,0 +1,22 @@
+sequenceDiagram
+    title Logical sequence - Chatbot message (POST /chat/conversations/:id/messages)
+    participant MobileApp
+    participant ChatRouter
+    participant Repository
+    participant AIService
+    participant AIProvider
+    participant Notifications
+    MobileApp->>ChatRouter: citizen message
+    ChatRouter->>Repository: load conversation, RLS owner only
+    ChatRouter->>Repository: INSERT citizen chat_message
+    ChatRouter->>AIService: chatReply with history and draft
+    AIService->>Repository: read FAQ, my last 5 reports, categories
+    AIService->>AIProvider: JSON prompt, redacted, 8 s timeout
+    AIProvider-->>AIService: reply and action
+    AIService->>AIService: validate, else rule-based fallback
+    AIService-->>ChatRouter: reply, action, prediction id
+    ChatRouter->>Repository: status_card built from incidents table
+    ChatRouter->>Repository: draft saved to report_draft
+    ChatRouter->>Repository: INSERT bot chat_message
+    ChatRouter->>Notifications: on handover notify officers
+    ChatRouter-->>MobileApp: 201 messages and action

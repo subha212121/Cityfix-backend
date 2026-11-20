@@ -1,0 +1,297 @@
+erDiagram
+    direction LR
+    DEPARTMENTS |o..o{ ADMIN_PROFILES : department_id
+    USERS ||--o| ADMIN_PROFILES : "is a (ISA)"
+    USERS |o..o{ AI_PREDICTIONS : decided_by
+    CATEGORIES |o..o{ AI_PREDICTIONS : final_category_id
+    INCIDENTS |o..o{ AI_PREDICTIONS : incident_id
+    CATEGORIES |o..o{ AI_PREDICTIONS : suggested_category_id
+    USERS |o..o{ AI_SETTINGS : updated_by
+    AI_PREDICTIONS |o..o{ ANALYTICS_SUMMARIES : prediction_id
+    WARDS |o..o{ ANALYTICS_SUMMARIES : ward_id
+    USERS |o..o{ APP_FEEDBACK : user_id
+    USERS |o..o{ AUDIT_LOGS : actor_id
+    USERS ||--o{ AUTH_TOKENS : user_id
+    DEPARTMENTS ||--o{ CATEGORIES : default_department_id
+    TEAMS |o..o{ CATEGORIES : default_team_id
+    CATEGORIES |o..o{ CATEGORIES : parent_id
+    CATEGORIES ||--o{ CATEGORY_KEYWORDS : category_id
+    USERS ||--o{ CHAT_CONVERSATIONS : citizen_id
+    INCIDENTS |o..o{ CHAT_CONVERSATIONS : incident_id
+    USERS |o..o{ CHAT_CONVERSATIONS : staff_id
+    CHAT_CONVERSATIONS ||--o{ CHAT_MESSAGES : conversation_id
+    AI_PREDICTIONS |o..o{ CHAT_MESSAGES : prediction_id
+    USERS |o..o{ CHAT_MESSAGES : sender_user_id
+    USERS ||--o| CITIZEN_PROFILES : "is a (ISA)"
+    USERS ||--o{ DEVICE_PUSH_TOKENS : user_id
+    USERS ||--o{ EXPORT_JOBS : requested_by
+    CATEGORIES |o..o{ FAQ_ARTICLES : category_id
+    USERS |o..o{ FAQ_ARTICLES : updated_by
+    USERS |o..o{ INCIDENT_ASSIGNMENTS : assigned_by
+    DEPARTMENTS |o..o{ INCIDENT_ASSIGNMENTS : department_id
+    INCIDENTS ||--o{ INCIDENT_ASSIGNMENTS : incident_id
+    USERS |o..o{ INCIDENT_ASSIGNMENTS : officer_id
+    TEAMS |o..o{ INCIDENT_ASSIGNMENTS : team_id
+    INCIDENTS ||--o{ INCIDENT_ATTACHMENTS : incident_id
+    INCIDENT_MESSAGES |o..o{ INCIDENT_ATTACHMENTS : message_id
+    USERS ||--o{ INCIDENT_ATTACHMENTS : uploaded_by
+    INCIDENTS ||--o{ INCIDENT_MESSAGES : incident_id
+    USERS ||--o{ INCIDENT_MESSAGES : sender_id
+    INCIDENT_RATINGS ||--o{ INCIDENT_RATING_TAGS : rating_id
+    FEEDBACK_TAGS ||--o{ INCIDENT_RATING_TAGS : tag_code
+    USERS ||--o{ INCIDENT_RATINGS : citizen_id
+    INCIDENTS ||--o{ INCIDENT_RATINGS : incident_id
+    USERS |o..o{ INCIDENT_STATUS_HISTORY : changed_by
+    INCIDENTS ||--o{ INCIDENT_STATUS_HISTORY : incident_id
+    INCIDENTS ||--o{ INCIDENT_SUPPORTERS : incident_id
+    USERS ||--o{ INCIDENT_SUPPORTERS : user_id
+    CATEGORIES |o..o{ INCIDENTS : ai_category_id
+    DEPARTMENTS |o..o{ INCIDENTS : assigned_department_id
+    USERS |o..o{ INCIDENTS : assigned_officer_id
+    TEAMS |o..o{ INCIDENTS : assigned_team_id
+    CATEGORIES ||--o{ INCIDENTS : category_id
+    INCIDENTS |o..o{ INCIDENTS : merged_into_id
+    USERS ||--o{ INCIDENTS : reporter_id
+    WARDS |o..o{ INCIDENTS : ward_id
+    NOTIFICATIONS ||--o{ NOTIFICATION_DELIVERIES : notification_id
+    USERS ||--o{ NOTIFICATION_PREFERENCES : user_id
+    INCIDENTS |o..o{ NOTIFICATIONS : incident_id
+    USERS ||--o{ NOTIFICATIONS : user_id
+    DEPARTMENTS ||--o{ OFFICER_PROFILES : department_id
+    TEAMS |o..o{ OFFICER_PROFILES : team_id
+    USERS ||--o| OFFICER_PROFILES : "is a (ISA)"
+    CATEGORIES ||--o{ SLA_PRIORITY_OVERRIDES : category_id
+    USERS |o..o{ STAFF_INVITATIONS : accepted_user_id
+    DEPARTMENTS |o..o{ STAFF_INVITATIONS : department_id
+    USERS ||--o{ STAFF_INVITATIONS : invited_by
+    TEAMS |o..o{ STAFF_INVITATIONS : team_id
+    USERS |o..o{ SYSTEM_SETTINGS : updated_by
+    DEPARTMENTS ||--o{ TEAMS : department_id
+    USERS ||--o{ USER_SESSIONS : user_id
+    ADMIN_PROFILES {
+        uuid user_id PK, FK
+        enum role FK
+        string employee_no UK
+        smallint department_id FK
+        enum access_level
+    }
+    AI_PREDICTIONS {
+        bigint id PK
+        enum feature
+        bigint incident_id FK
+        smallint suggested_category_id FK
+        decimal confidence
+        enum decision
+        uuid decided_by FK
+        smallint final_category_id FK
+    }
+    AI_SETTINGS {
+        enum feature PK
+        bool is_enabled
+        uuid updated_by FK
+    }
+    ANALYTICS_SUMMARIES {
+        bigint id PK
+        smallint ward_id FK
+        bigint prediction_id FK
+    }
+    APP_FEEDBACK {
+        bigint id PK
+        uuid user_id FK
+    }
+    AUDIT_LOGS {
+        bigint id PK
+        uuid actor_id FK
+        string action
+        string entity_type
+    }
+    AUTH_TOKENS {
+        uuid id PK
+        uuid user_id FK
+        bytes token_hash UK
+    }
+    CATEGORIES {
+        smallint id PK
+        smallint parent_id FK, UK
+        string name UK
+        string slug UK
+        smallint default_department_id FK
+        smallint default_team_id FK
+        smallint sla_days
+    }
+    CATEGORY_KEYWORDS {
+        smallint category_id PK, FK
+        string keyword PK
+    }
+    CHAT_CONVERSATIONS {
+        uuid id PK
+        uuid citizen_id FK
+        bigint incident_id FK
+        enum status
+        uuid staff_id FK
+    }
+    CHAT_MESSAGES {
+        bigint id PK
+        uuid conversation_id FK
+        uuid sender_user_id FK
+        bigint prediction_id FK
+    }
+    CITIZEN_PROFILES {
+        uuid user_id PK, FK
+        enum role FK
+        geography home_location
+    }
+    DEPARTMENTS {
+        smallint id PK
+        string name UK
+        string code UK
+    }
+    DEVICE_PUSH_TOKENS {
+        uuid id PK
+        uuid user_id FK
+        string token UK
+    }
+    EXPORT_JOBS {
+        uuid id PK
+        uuid requested_by FK
+        string report_type
+        enum status
+    }
+    FAQ_ARTICLES {
+        smallint id PK
+        smallint category_id FK
+        uuid updated_by FK
+    }
+    FEEDBACK_TAGS {
+        string code PK
+        string label
+    }
+    INCIDENT_ASSIGNMENTS {
+        bigint id PK
+        bigint incident_id FK
+        smallint department_id FK
+        smallint team_id FK
+        uuid officer_id FK
+        uuid assigned_by FK
+    }
+    INCIDENT_ATTACHMENTS {
+        uuid id PK
+        bigint incident_id FK
+        bigint message_id FK
+        uuid uploaded_by FK
+        enum kind
+        string storage_key UK
+        int size_bytes
+    }
+    INCIDENT_MESSAGES {
+        bigint id PK
+        bigint incident_id FK
+        uuid sender_id FK
+    }
+    INCIDENT_NUMBER_COUNTERS {
+        smallint year PK
+    }
+    INCIDENT_RATING_TAGS {
+        bigint rating_id PK, FK
+        string tag_code PK, FK
+    }
+    INCIDENT_RATINGS {
+        bigint id PK
+        bigint incident_id FK, UK
+        uuid citizen_id FK
+        smallint resolution_cycle UK
+        smallint score
+    }
+    INCIDENT_STATUS_HISTORY {
+        bigint id PK
+        bigint incident_id FK
+        enum from_status
+        enum to_status
+        uuid changed_by FK
+    }
+    INCIDENT_STATUS_TRANSITIONS {
+        enum from_status PK
+        enum to_status PK
+    }
+    INCIDENT_SUPPORTERS {
+        bigint incident_id PK, FK
+        uuid user_id PK, FK
+    }
+    INCIDENTS {
+        bigint id PK
+        string reference_no UK
+        uuid reporter_id FK
+        geography location
+        smallint ward_id FK
+        smallint category_id FK
+        enum priority
+        smallint ai_category_id FK
+        enum status
+        smallint assigned_department_id FK
+        smallint assigned_team_id FK
+        uuid assigned_officer_id FK
+        datetime sla_due_at
+        bigint merged_into_id FK
+    }
+    NOTIFICATION_DELIVERIES {
+        bigint id PK
+        bigint notification_id FK, UK
+        enum channel UK
+    }
+    NOTIFICATION_PREFERENCES {
+        uuid user_id PK, FK
+        enum event PK
+    }
+    NOTIFICATIONS {
+        bigint id PK
+        uuid user_id FK
+        enum event
+        bigint incident_id FK
+        datetime read_at
+    }
+    OFFICER_PROFILES {
+        uuid user_id PK, FK
+        enum role FK
+        string employee_no UK
+        smallint department_id FK
+        smallint team_id FK
+    }
+    SLA_PRIORITY_OVERRIDES {
+        smallint category_id PK, FK
+        enum priority PK
+    }
+    STAFF_INVITATIONS {
+        uuid id PK
+        smallint department_id FK
+        smallint team_id FK
+        bytes token_hash UK
+        uuid invited_by FK
+        uuid accepted_user_id FK
+    }
+    SYSTEM_SETTINGS {
+        string key PK
+        json value
+        uuid updated_by FK
+    }
+    TEAMS {
+        smallint id PK
+        smallint department_id FK, UK
+        string name UK
+    }
+    USER_SESSIONS {
+        uuid id PK
+        uuid user_id FK
+        bytes refresh_token_hash UK
+    }
+    USERS {
+        uuid id PK
+        string email UK
+        enum role UK
+        enum status
+    }
+    WARDS {
+        smallint id PK
+        string name UK
+        string code UK
+        geometry boundary
+    }

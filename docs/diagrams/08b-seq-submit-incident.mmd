@@ -1,0 +1,24 @@
+sequenceDiagram
+    title Logical sequence - Submit incident (POST /incidents)
+    participant Client
+    participant AuthMiddleware
+    participant IncidentRouter
+    participant AIService
+    participant AIProvider
+    participant Repository
+    participant DBTriggers
+    Client->>AuthMiddleware: POST /api/v1/incidents with Bearer token
+    AuthMiddleware->>IncidentRouter: actor citizen, citizenOnly passed
+    IncidentRouter->>IncidentRouter: Zod validate, photo keys under own prefix
+    IncidentRouter->>Repository: withTx sets app.user_id and app.role
+    IncidentRouter->>AIService: suggestClassification if no category
+    AIService->>AIProvider: JSON prompt, redacted text, 8 s timeout
+    AIProvider-->>AIService: category, priority, reason or error
+    AIService->>Repository: INSERT ai_predictions, fallback if invalid
+    Repository->>DBTriggers: INSERT incidents, RLS reporter equals me
+    DBTriggers-->>Repository: INC number, ward, department, SLA, history, audit
+    Repository->>DBTriggers: INSERT attachments, max 3 photos
+    Repository->>Repository: UPDATE prediction decision accepted or overridden
+    Repository->>DBTriggers: create_notification report_received
+    Repository-->>IncidentRouter: detail and possible duplicates
+    IncidentRouter-->>Client: 201 Created

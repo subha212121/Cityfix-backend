@@ -1,0 +1,29 @@
+gantt
+    title CityFix schedule (Phase I Oct 2026 - Jan 2027, Phase II Feb - May 2027)
+    dateFormat YYYY-MM-DD
+    axisFormat %b %Y
+    todayMarker stroke-width:2px,stroke:#d33
+    section 2 Requirements
+    Brief analysis and gap review        :done, r1, 2026-10-05, 2026-11-20
+    Client sign-off of requirements      :r4, 2026-11-23, 2026-12-04
+    section 3 Design
+    Architecture and AI design           :active, d1, 2026-11-16, 2026-12-11
+    UML, ERD, EERD, normalisation        :done, d2, 2026-11-10, 2026-11-20
+    Class and state diagrams             :d2b, 2026-11-23, 2026-12-04
+    section 4 UX
+    Hi-fi screens (21 left)              :active, u2, 2026-11-16, 2026-12-18
+    Clickable prototype                  :u3, 2026-12-14, 2027-01-15
+    Phase I submission                   :milestone, m1, 2027-01-29, 0d
+    section 5-6 Backend and AI
+    API, database, worker (built early)  :done, b1, 2026-11-18, 2026-11-20
+    AI provider keys and accuracy test   :a4, 2027-02-01, 2027-02-26
+    section 7-8 Front ends
+    Web dashboard (React)                :w1, 2027-02-01, 2027-04-02
+    Citizen app (React Native)           :m1b, 2027-02-08, 2027-04-16
+    section 9 Testing
+    End-to-end, load, security tests     :q2, 2027-03-29, 2027-04-30
+    User acceptance testing              :q4, 2027-04-19, 2027-05-07
+    section 10 Deployment
+    CI/CD and hosting                    :x1, 2027-03-01, 2027-03-19
+    User docs and final presentation     :x3, 2027-04-26, 2027-05-21
+    Final presentation                   :milestone, m2, 2027-05-28, 0d

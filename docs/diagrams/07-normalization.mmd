@@ -1,0 +1,48 @@
+flowchart TD
+    subgraph unf ["UNF - one flat incident report form"]
+        flat["INCIDENT_REPORT (report_no, title, description, lat, lng, reporter_email, reporter_name, reporter_phone, category_name, category_sla_days, department_name, department_email, team_name, officer_email, officer_name, status, photo1, photo2, photo3, keywords, status_changes, rating_score, rating_tags)"]
+    end
+    subgraph nf1 ["1NF - atomic values, no repeating groups"]
+        i1["INCIDENT (report_no PK, title, description, location, reporter_email, reporter_name, reporter_phone, category_name, category_sla_days, department_name, department_email, team_name, officer_email, officer_name, status)"]
+        p1["INCIDENT_PHOTO (report_no, photo_no, storage_key) PK report_no + photo_no"]
+        s1["STATUS_CHANGE (report_no, changed_at, status, changed_by) PK report_no + changed_at"]
+        k1["CATEGORY_KEYWORD (category_name, keyword) PK both"]
+        r1["RATING_TAG (report_no, cycle, score, tag) PK report_no + cycle + tag"]
+    end
+    subgraph nf2 ["2NF - no partial dependency on part of a composite key"]
+        r2["INCIDENT_RATINGS (id PK, incident_id, resolution_cycle, score) UK incident + cycle"]
+        t2["INCIDENT_RATING_TAGS (rating_id, tag_code) PK both"]
+        f2["FEEDBACK_TAGS (code PK, label, is_positive)"]
+        p2["INCIDENT_ATTACHMENTS (id PK, incident_id, kind, storage_key, size_bytes)"]
+        s2["INCIDENT_STATUS_HISTORY (id PK, incident_id, from_status, to_status, changed_by, note)"]
+    end
+    subgraph nf3 ["3NF / BCNF - no transitive dependency, every determinant is a key"]
+        u3["USERS (id PK, email UK, full_name, phone, role, status)"]
+        sub3["CITIZEN_ / OFFICER_ / ADMIN_PROFILES (user_id PK FK) - role attributes only"]
+        c3["CATEGORIES (id PK, name, sla_days, default_department_id FK, default_team_id FK)"]
+        d3["DEPARTMENTS (id PK, name UK, email)"]
+        tm3["TEAMS (id PK, department_id FK, name) UK id + department_id"]
+        inc3["INCIDENTS (id PK, reference_no UK, title, description, location, reporter_id FK, category_id FK, assigned_team_id FK, assigned_officer_id FK, status, priority)"]
+        k3["CATEGORY_KEYWORDS (category_id FK, keyword) PK both"]
+    end
+    flat -->|"split repeating groups"| i1
+    flat --> p1
+    flat --> s1
+    flat --> k1
+    flat --> r1
+    r1 -->|"score depends on report + cycle only"| r2
+    r1 -->|"tag list"| t2
+    t2 --> f2
+    p1 -->|"surrogate key"| p2
+    s1 -->|"surrogate key"| s2
+    i1 -->|"reporter_email to name, phone"| u3
+    u3 -->|"disjoint total specialization"| sub3
+    i1 -->|"category_name to sla_days, department"| c3
+    c3 -->|"department_name to email"| d3
+    d3 --> tm3
+    i1 -->|"keys only remain"| inc3
+    k1 -->|"name replaced by id"| k3
+    style unf fill:#FFCDC2,stroke:#FF7556
+    style nf1 fill:#FFE0C2,stroke:#FF9E42
+    style nf2 fill:#FFECBD,stroke:#FFC943
+    style nf3 fill:#CDF4D3,stroke:#66D575

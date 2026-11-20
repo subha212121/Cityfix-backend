@@ -1,0 +1,60 @@
+flowchart LR
+    subgraph roles ["Specialization: disjoint (d), total (thick line) on USER.role"]
+        user["USER (id, email, full_name, role, status)"]
+        dis((d))
+        citizen["CITIZEN (home_location, default_anonymous)"]
+        officer["OFFICER (employee_no, position_title)"]
+        admin["ADMIN (employee_no, access_level)"]
+    end
+    user ==>|"total"| dis
+    dis -->|"role = citizen"| citizen
+    dis -->|"role = officer"| officer
+    dis -->|"role = admin"| admin
+    department["DEPARTMENT"]
+    team["TEAM / CREW"]
+    ward["WARD (boundary)"]
+    category["CATEGORY (sla_days)"]
+    incident["INCIDENT (reference_no, location, status, priority)"]
+    photo[["PHOTO (weak)"]]
+    history[["STATUS HISTORY (weak)"]]
+    rating["RATING (score 1-5)"]
+    message["MESSAGE"]
+    worksIn{Works in}
+    memberOf{Member of}
+    hasTeam{Has}
+    reports{Reports}
+    supports{Supports}
+    handles{Handles}
+    assignedTo{Assigned to}
+    locatedIn{Located in}
+    classified{Classified as}
+    subOf{Subcategory of}
+    routes{Routes to}
+    hasPhoto{Has}
+    logs{Logs}
+    gives{Gives}
+    ratedBy{Rated by}
+    sends{Sends}
+    concerns{Concerns}
+    dupOf{Duplicate of}
+    officer ---|"N"| worksIn ---|"1"| department
+    officer ---|"N"| memberOf ---|"0..1"| team
+    department ---|"1"| hasTeam ---|"N"| team
+    citizen ---|"1"| reports ---|"N"| incident
+    citizen ---|"M"| supports ---|"N"| incident
+    officer ---|"0..1"| handles ---|"N"| incident
+    team ---|"0..1"| assignedTo ---|"N"| incident
+    incident ---|"N"| locatedIn ---|"0..1"| ward
+    incident ---|"N"| classified ---|"1"| category
+    category ---|"N"| subOf ---|"0..1"| category
+    category ---|"N"| routes ---|"1"| department
+    incident ---|"1"| hasPhoto ---|"0..3 per citizen"| photo
+    incident ---|"1"| logs ---|"N"| history
+    citizen ---|"1"| gives ---|"N"| rating
+    incident ---|"1"| ratedBy ---|"N"| rating
+    user ---|"1"| sends ---|"N"| message
+    incident ---|"1"| concerns ---|"N"| message
+    incident ---|"N"| dupOf ---|"0..1"| incident
+    style roles fill:#DCCCFF,stroke:#874FFF
+    style dis fill:#FFECBD,stroke:#FFC943
+    style incident fill:#C2E5FF,stroke:#3DADFF

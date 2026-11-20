@@ -1,0 +1,30 @@
+flowchart LR
+    subgraph clients ["Clients"]
+        mobile["Citizen app (React Native)"]
+        web["Officer / admin web (React)"]
+    end
+    subgraph backend ["CityFix backend (Node.js + TypeScript)"]
+        api["REST API - Express 5, /api/v1, Zod, JWT"]
+        worker["Worker - outbox, SLA, auto-close, AI summaries, exports"]
+        ai["AI service - prompts, validation, fallback"]
+    end
+    db[("PostgreSQL 16 + PostGIS - RLS, triggers, views")]
+    s3[("Object storage S3 / MinIO - photos, exports")]
+    llm["AI provider - OpenAI / Azure OpenAI / Gemini"]
+    smtp["Email - SMTP"]
+    osm["OpenStreetMap tiles"]
+    mobile -->|"HTTPS JSON"| api
+    web -->|"HTTPS JSON"| api
+    mobile -.->|"presigned PUT"| s3
+    mobile -.->|"map tiles"| osm
+    web -.->|"map tiles"| osm
+    api --> db
+    api --> ai
+    worker --> ai
+    ai -->|"redacted text"| llm
+    api -->|"presign"| s3
+    worker --> db
+    worker --> s3
+    worker --> smtp
+    style backend fill:#C2E5FF,stroke:#3DADFF
+    style clients fill:#F5F5F5,stroke:#B3B3B3

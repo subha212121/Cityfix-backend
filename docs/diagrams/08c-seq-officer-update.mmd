@@ -1,0 +1,24 @@
+sequenceDiagram
+    title Logical sequence - Officer updates status (PATCH /incidents/42)
+    participant WebDashboard
+    participant AuthMiddleware
+    participant IncidentRouter
+    participant Repository
+    participant DBTriggers
+    participant Outbox
+    participant Worker
+    WebDashboard->>AuthMiddleware: PATCH status assigned, team, officer, note
+    AuthMiddleware->>IncidentRouter: staffOnly passed
+    IncidentRouter->>Repository: withTx, SELECT incident FOR UPDATE
+    IncidentRouter->>Repository: team implies department, set status note
+    Repository->>DBTriggers: UPDATE incidents
+    DBTriggers->>DBTriggers: check incident_status_transitions for role
+    DBTriggers->>DBTriggers: stamp assigned_at, write status history
+    DBTriggers->>DBTriggers: write assignment history and audit log
+    DBTriggers-->>Repository: row updated or 422 rule violation
+    Repository->>Repository: UPDATE ai_predictions decision if overridden
+    Repository->>Outbox: create_notification to reporter and officer
+    Repository-->>WebDashboard: 200 updated incident detail
+    Worker->>Outbox: every 10 s claim queued deliveries SKIP LOCKED
+    Outbox-->>Worker: email rows
+    Worker->>Worker: send via SMTP, retry with backoff
